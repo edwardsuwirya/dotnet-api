@@ -1,3 +1,4 @@
+using MySimpleNetApi.Authentication;
 using MySimpleNetApi.Middlewares;
 
 namespace MySimpleNetApi;
@@ -11,6 +12,7 @@ public class Startup
     // ConfigureServices akan di-call oleh framework secara otomatis
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddAuthentication("Custom").AddScheme<CustomAuthOptions, CustomAuthHandler>("Custom", null);
         services.AddControllers();
     }
 
@@ -22,10 +24,12 @@ public class Startup
         // app.ConfigureExceptionHandler();
         
         // Create custom middlware
-        app.UseMiddleware<CustomExceptionMiddleware>();
-        app.UseMiddleware<CustomAuthHeaderMiddleware>();
+        // app.UseMiddleware<CustomExceptionMiddleware>();
+        // app.UseMiddleware<CustomAuthHeaderMiddleware>();
         app.UseHttpsRedirection();
+        app.UseAuthentication();
         app.UseRouting();
+        app.UseAuthorization();
         app.Use(async (context, next) =>
         {
             Console.WriteLine("Hello enigma from middleware");

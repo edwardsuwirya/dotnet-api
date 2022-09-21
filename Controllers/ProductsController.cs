@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySimpleNetApi.Models;
 
@@ -6,6 +7,7 @@ namespace MySimpleNetApi.Controllers;
 // Convention diberikan suffix Controller
 // Extends dengan ControllerBase, karena jika di-extends dengan Controller
 // Akan diberikan support ke Views (HTML, CSS, JS)
+[Authorize]
 public class ProductsController : BaseController
 {
     /* 3 pendekatan cara melakukan return dari API
