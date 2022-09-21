@@ -9,6 +9,7 @@ public class Startup
     // ConfigureServices akan di-call oleh framework secara otomatis
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddControllers();
     }
 
 
@@ -19,7 +20,8 @@ public class Startup
         app.UseRouting();
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello Enigma!"); });
+            // endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello Enigma!"); });
+            endpoints.MapControllers();
         });
     }
 }
