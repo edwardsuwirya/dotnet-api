@@ -1,3 +1,5 @@
+using MySimpleNetApi.Middlewares;
+
 namespace MySimpleNetApi;
 
 public class Startup
@@ -16,8 +18,23 @@ public class Startup
     // Configure method akan di-call oleh framework secara otomatis
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        // Create middleware using extension method
+        // app.ConfigureExceptionHandler();
+        
+        // Create custom middlware
+        app.UseMiddleware<CustomExceptionMiddleware>();
+        app.UseMiddleware<CustomAuthHeaderMiddleware>();
         app.UseHttpsRedirection();
         app.UseRouting();
+        app.Use(async (context, next) =>
+        {
+            Console.WriteLine("Hello enigma from middleware");
+            Console.WriteLine(context.Request.Path);
+            Console.WriteLine(context.Request.Host);
+            await next();
+            Console.WriteLine(context.Response.StatusCode);
+        });
+        
         app.UseEndpoints(endpoints =>
         {
             // endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello Enigma!"); });

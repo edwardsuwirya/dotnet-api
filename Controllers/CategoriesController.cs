@@ -9,24 +9,33 @@ public class CategoriesController : BaseController
     [HttpGet]
     public async Task<CommonResponse<List<Category>>> GetAllCategories()
     {
-        return new CommonResponse<List<Category>>
+        try
         {
-            StatusCode = "00",
-            Message = "Success",
-            Data = new List<Category>
+            throw new Exception("Ooops");
+            return new CommonResponse<List<Category>>
             {
-                new Category
+                StatusCode = "00",
+                Message = "Success",
+                Data = new List<Category>
                 {
-                    Id = "1",
-                    CategoryName = "Food"
-                },
-                new Category
-                {
-                    Id = "2",
-                    CategoryName = "Beverage"
+                    new Category
+                    {
+                        Id = "1",
+                        CategoryName = "Food"
+                    },
+                    new Category
+                    {
+                        Id = "2",
+                        CategoryName = "Beverage"
+                    }
                 }
-            }
-        };
+            };
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     [HttpPost]
