@@ -6,11 +6,13 @@ public class Startup
 
     public Startup(IConfiguration configuration) => _configuration = configuration;
 
+    // ConfigureServices akan di-call oleh framework secara otomatis
     public void ConfigureServices(IServiceCollection services)
     {
     }
 
 
+    // Configure method akan di-call oleh framework secara otomatis
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         app.UseHttpsRedirection();
