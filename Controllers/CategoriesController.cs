@@ -1,15 +1,12 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using MySimpleNetApi.Models;
 using MySimpleNetApi.Utils;
 
 namespace MySimpleNetApi.Controllers;
 
-[Route("/api/[controller]")]
-public class CategoriesController : ControllerBase
+public class CategoriesController : BaseController
 {
     [HttpGet]
-    [Produces("application/json")]
     public async Task<CommonResponse<List<Category>>> GetAllCategories()
     {
         return new CommonResponse<List<Category>>
@@ -33,7 +30,6 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    [Produces("application/json")]
     public async Task<CommonResponse<Category>> PostCategory([FromBody] Category category)
     {
         Console.WriteLine(category.CategoryName);

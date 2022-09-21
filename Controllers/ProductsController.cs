@@ -6,8 +6,7 @@ namespace MySimpleNetApi.Controllers;
 // Convention diberikan suffix Controller
 // Extends dengan ControllerBase, karena jika di-extends dengan Controller
 // Akan diberikan support ke Views (HTML, CSS, JS)
-[Route("/api/[controller]")]
-public class ProductsController : ControllerBase
+public class ProductsController : BaseController
 {
     /* 3 pendekatan cara melakukan return dari API
      - Tipe data nya langsung => langsung status code 200
