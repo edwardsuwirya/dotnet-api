@@ -1,5 +1,5 @@
 using MySimpleNetApi.Authentication;
-using MySimpleNetApi.Middlewares;
+using MySimpleNetApi.Services;
 
 namespace MySimpleNetApi;
 
@@ -14,6 +14,7 @@ public class Startup
     {
         services.AddAuthentication("Custom").AddScheme<CustomAuthOptions, CustomAuthHandler>("Custom", null);
         services.AddControllers();
+        services.AddSingleton<IProductService, ProductService>();
     }
 
 

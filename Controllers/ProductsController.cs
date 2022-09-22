@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MySimpleNetApi.Exceptions;
 using MySimpleNetApi.Models;
+using MySimpleNetApi.Services;
+using MySimpleNetApi.Utils;
 
 namespace MySimpleNetApi.Controllers;
 
@@ -10,15 +13,25 @@ namespace MySimpleNetApi.Controllers;
 [Authorize]
 public class ProductsController : BaseController
 {
+    private readonly IProductService _productService;
+
+    public ProductsController(IProductService productService) => _productService = productService;
+
     /* 3 pendekatan cara melakukan return dari API
      - Tipe data nya langsung => langsung status code 200
      - IActionResult => Bisa memberikan HTTP status code yang lain yang dibungkus dengan method, contoh: Ok(products), NotFound() 404
      - ActionResult<T> => Syantactical Sugar supaya return type dari API lebih clear
     */
     [HttpGet]
-    public async Task<ActionResult<string>> GetAllProduct()
+    public async Task<CommonResponse<List<Product>>> GetAllProduct()
     {
-        return "Hello Enigma 2.0";
+        var result = await _productService.List();
+        return new CommonResponse<List<Product>>
+        {
+            StatusCode = "00",
+            Message = "Success",
+            Data = result
+        };
     }
 
     [HttpGet("not-found")]
@@ -29,24 +42,48 @@ public class ProductsController : BaseController
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<string>> PutProduct(string id, [FromBody] Product product)
+    public async Task<CommonResponse<Product>> PutProduct(string id, [FromBody] Product product)
     {
-        Console.WriteLine(id);
-        Console.WriteLine(product.Id);
-        if (id.Equals(product.Id) == false)
+        // Console.WriteLine(id);
+        // Console.WriteLine(product.Id);
+        if (string.IsNullOrEmpty(id))
         {
             // Akan memberikan status 400
-            return BadRequest();
+            throw new BadRequestException("ID is needed");
         }
         else
         {
-            return NoContent();
+            var result = await _productService.UpdateProduct(id, product);
+            return new CommonResponse<Product>
+            {
+                StatusCode = "00",
+                Message = "Success",
+                Data = result
+            };
         }
     }
 
     [HttpPost]
-    public async Task<ActionResult<Product>> PostProduct([FromBody] Product product)
+    public async Task<CommonResponse<Product>> PostProduct([FromBody] Product product)
     {
-        return product;
+        var result = await _productService.RegisterProduct(product);
+        return new CommonResponse<Product>
+        {
+            StatusCode = "00",
+            Message = "Success",
+            Data = result
+        };
+    }
+
+    [HttpDelete]
+    public async Task<CommonResponse<Product>> DeleteProduct(string id)
+    {
+        var result = await _productService.DeleteProduct(id);
+        return new CommonResponse<Product>
+        {
+            StatusCode = "00",
+            Message = "Success",
+            Data = result
+        };
     }
 }
