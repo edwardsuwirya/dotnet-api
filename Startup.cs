@@ -18,14 +18,19 @@ public class Startup
     {
         services.AddAuthentication("Custom").AddScheme<CustomAuthOptions, CustomAuthHandler>("Custom", null);
         services.AddControllers().AddJsonOptions(options =>
-            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
+            {
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            }
+        );
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseInMemoryDatabase(_configuration.GetConnectionString("memory"));
         });
         services.AddTransient<IPersistence, DbPersistence>();
         services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddTransient<ICategoryRepository, CategoryRepository>();
         services.AddTransient<IProductService, ProductService>();
+        services.AddTransient<ICategoryService, CategoryService>();
     }
 
 

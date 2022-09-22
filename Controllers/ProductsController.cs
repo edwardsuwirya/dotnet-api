@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySimpleNetApi.Exceptions;
 using MySimpleNetApi.Models;
+using MySimpleNetApi.Resource;
 using MySimpleNetApi.Services;
 using MySimpleNetApi.Utils;
 
@@ -23,14 +24,24 @@ public class ProductsController : BaseController
      - ActionResult<T> => Syantactical Sugar supaya return type dari API lebih clear
     */
     [HttpGet]
-    public async Task<CommonResponse<List<Product>>> GetAllProduct()
+    public async Task<CommonResponse<List<ProductResponse>>> GetAllProduct()
     {
         var result = await _productService.List();
-        return new CommonResponse<List<Product>>
+        var response = result.Select(p => new ProductResponse
+        {
+            Id = p.Id,
+            ProductName = p.ProductName,
+            Category = new CategoryResponse
+            {
+                Id = p.Category.Id,
+                CategoryName = p.Category.CategoryName
+            }
+        }).ToList();
+        return new CommonResponse<List<ProductResponse>>
         {
             StatusCode = "00",
             Message = "Success",
-            Data = result
+            Data = response
         };
     }
 
@@ -42,7 +53,7 @@ public class ProductsController : BaseController
     }
 
     [HttpPut("{id}")]
-    public async Task<CommonResponse<Product>> PutProduct(string id, [FromBody] Product product)
+    public async Task<CommonResponse<ProductResponse>> PutProduct(string id, [FromBody] RegisterProductRequest product)
     {
         // Console.WriteLine(id);
         // Console.WriteLine(product.Id);
@@ -53,37 +64,58 @@ public class ProductsController : BaseController
         }
         else
         {
-            var result = await _productService.UpdateProduct(id, product);
-            return new CommonResponse<Product>
+            var result = await _productService.UpdateProduct(id, new Product
+            {
+                ProductName = product.ProductName,
+                CategoryId = product.CategoryId
+            });
+            return new CommonResponse<ProductResponse>
             {
                 StatusCode = "00",
                 Message = "Success",
-                Data = result
+                Data = new ProductResponse
+                {
+                    Id = result.Id,
+                    ProductName = result.ProductName,
+                    Category = new CategoryResponse
+                    {
+                        Id = result.Category.Id,
+                        CategoryName = result.Category.CategoryName
+                    }
+                }
             };
         }
     }
 
     [HttpPost]
-    public async Task<CommonResponse<Product>> PostProduct([FromBody] Product product)
+    public async Task<CommonResponse<ProductResponse>> PostProduct([FromBody] RegisterProductRequest product)
     {
-        var result = await _productService.RegisterProduct(product);
-        return new CommonResponse<Product>
+        var result = await _productService.RegisterProduct(new Product
+        {
+            ProductName = product.ProductName,
+            CategoryId = product.CategoryId
+        });
+        return new CommonResponse<ProductResponse>
         {
             StatusCode = "00",
             Message = "Success",
-            Data = result
+            Data = new ProductResponse
+            {
+                Id = result.Id,
+                ProductName = result.ProductName,
+            }
         };
     }
 
     [HttpDelete]
-    public async Task<CommonResponse<Product>> DeleteProduct(string id)
+    public async Task<CommonResponse<string>> DeleteProduct(string id)
     {
         var result = await _productService.DeleteProduct(id);
-        return new CommonResponse<Product>
+        return new CommonResponse<string>
         {
             StatusCode = "00",
             Message = "Success",
-            Data = result
+            Data = id
         };
     }
 }

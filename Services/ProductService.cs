@@ -7,11 +7,14 @@ namespace MySimpleNetApi.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IPersistence _persistence;
 
-    public ProductService(IProductRepository productRepository, IPersistence persistence)
+    public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository,
+        IPersistence persistence)
     {
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
         _persistence = persistence;
     }
 

@@ -9,9 +9,12 @@ public class ProductRepository : BaseRepository, IProductRepository
     {
     }
 
-    public Task<List<Product>> GetAll()
+    public async Task<List<Product>> GetAll()
     {
-        return _context.Products.ToListAsync();
+        var queryable = _context.Products.Include(p => p.Category);
+        int totalItems = await queryable.CountAsync();
+        Console.WriteLine($"Total: {totalItems}");
+        return await queryable.ToListAsync();
     }
 
     public async Task<Product?> FindById(string id)
