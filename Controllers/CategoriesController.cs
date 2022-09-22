@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MySimpleNetApi.Exceptions;
 using MySimpleNetApi.Models;
 using MySimpleNetApi.Utils;
 
@@ -12,6 +13,7 @@ public class CategoriesController : BaseController
         try
         {
             throw new Exception("Ooops");
+            // throw new NotFoundException("Category is not found");
             return new CommonResponse<List<Category>>
             {
                 StatusCode = "00",

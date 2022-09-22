@@ -1,4 +1,5 @@
 using MySimpleNetApi.Authentication;
+using System.Text.Json.Serialization;
 using MySimpleNetApi.Middlewares;
 
 namespace MySimpleNetApi;
@@ -13,7 +14,8 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddAuthentication("Custom").AddScheme<CustomAuthOptions, CustomAuthHandler>("Custom", null);
-        services.AddControllers();
+        services.AddControllers().AddJsonOptions(options =>
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
     }
 
 
@@ -22,9 +24,9 @@ public class Startup
     {
         // Create middleware using extension method
         // app.ConfigureExceptionHandler();
-        
+
         // Create custom middlware
-        // app.UseMiddleware<CustomExceptionMiddleware>();
+        app.UseMiddleware<CustomExceptionMiddleware>();
         // app.UseMiddleware<CustomAuthHeaderMiddleware>();
         app.UseHttpsRedirection();
         app.UseAuthentication();
@@ -38,7 +40,7 @@ public class Startup
             await next();
             Console.WriteLine(context.Response.StatusCode);
         });
-        
+
         app.UseEndpoints(endpoints =>
         {
             // endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello Enigma!"); });
