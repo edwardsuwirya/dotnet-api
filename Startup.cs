@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MySimpleNetApi.Middlewares;
 
 namespace MySimpleNetApi;
@@ -11,7 +12,8 @@ public class Startup
     // ConfigureServices akan di-call oleh framework secara otomatis
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
+        services.AddControllers().AddJsonOptions(options =>
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
     }
 
 
@@ -20,7 +22,7 @@ public class Startup
     {
         // Create middleware using extension method
         // app.ConfigureExceptionHandler();
-        
+
         // Create custom middlware
         app.UseMiddleware<CustomExceptionMiddleware>();
         app.UseMiddleware<CustomAuthHeaderMiddleware>();
@@ -34,7 +36,7 @@ public class Startup
             await next();
             Console.WriteLine(context.Response.StatusCode);
         });
-        
+
         app.UseEndpoints(endpoints =>
         {
             // endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello Enigma!"); });
