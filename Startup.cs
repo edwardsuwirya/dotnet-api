@@ -1,7 +1,9 @@
 using MySimpleNetApi.Authentication;
 using MySimpleNetApi.Services;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using MySimpleNetApi.Middlewares;
+using MySimpleNetApi.Repository;
 
 namespace MySimpleNetApi;
 
@@ -17,7 +19,13 @@ public class Startup
         services.AddAuthentication("Custom").AddScheme<CustomAuthOptions, CustomAuthHandler>("Custom", null);
         services.AddControllers().AddJsonOptions(options =>
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
-        services.AddSingleton<IProductService, ProductService>();
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseInMemoryDatabase(_configuration.GetConnectionString("memory"));
+        });
+        services.AddTransient<IPersistence, DbPersistence>();
+        services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddTransient<IProductService, ProductService>();
     }
 
 

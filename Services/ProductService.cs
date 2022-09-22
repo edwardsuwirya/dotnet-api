@@ -1,58 +1,71 @@
 using MySimpleNetApi.Exceptions;
 using MySimpleNetApi.Models;
+using MySimpleNetApi.Repository;
 
 namespace MySimpleNetApi.Services;
 
 public class ProductService : IProductService
 {
-    private List<Product> listProduct = new()
+    private readonly IProductRepository _productRepository;
+    private readonly IPersistence _persistence;
+
+    public ProductService(IProductRepository productRepository, IPersistence persistence)
     {
-        new Product
-        {
-            Id = "1",
-            ProductName = "Juice Melon"
-        },
-        new Product
-        {
-            Id = "2",
-            ProductName = "Pecel Ayam"
-        },
-    };
+        _productRepository = productRepository;
+        _persistence = persistence;
+    }
 
     public Task<List<Product>> List()
     {
-        return Task.Run(() => listProduct);
+        return _productRepository.GetAll();
     }
 
-    public Task<Product> RegisterProduct(Product product)
+    public async Task<Product> RegisterProduct(Product product)
     {
-        return Task.Run(() =>
+        try
         {
-            listProduct.Add(product);
+            await _productRepository.Save(product);
+            await _persistence.Complete();
             return product;
-        });
+        }
+        catch (Exception e)
+        {
+            throw new DbException("Failed to register product");
+        }
     }
 
-    public Task<Product> UpdateProduct(string id, Product product)
+    public async Task<Product> UpdateProduct(string id, Product product)
     {
-        return Task.Run(() =>
+        try
         {
-            var result = listProduct.FirstOrDefault(p => p.Id == id);
-            if (result == null) throw new NotFoundException("Product Not Found");
-            result.ProductName = product.ProductName;
-            return result;
-
-        });
+            var existingProduct = await _productRepository.FindById(id);
+            if (existingProduct == null)
+                throw new NotFoundException("Product not found.");
+            existingProduct.ProductName = product.ProductName;
+            _productRepository.Update(existingProduct);
+            await _persistence.Complete();
+            return existingProduct;
+        }
+        catch (Exception e)
+        {
+            throw new DbException("Failed to update product");
+        }
     }
 
-    public Task<Product> DeleteProduct(string id)
+    public async Task<Product> DeleteProduct(string id)
     {
-        return Task.Run(() =>
+        try
         {
-            var result = listProduct.SingleOrDefault(p => p.Id == id);
-            if (result == null) throw new NotFoundException("Product Not Found");
-            listProduct.Remove(result);
-            return result;
-        });
+            var existingProduct = await _productRepository.FindById(id);
+            if (existingProduct == null)
+                throw new NotFoundException("Product not found.");
+            _productRepository.Delete(existingProduct);
+            await _persistence.Complete();
+            return existingProduct;
+        }
+        catch (Exception e)
+        {
+            throw new DbException("Failed to delete product");
+        }
     }
 }

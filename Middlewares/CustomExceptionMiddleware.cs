@@ -33,11 +33,15 @@ public class CustomExceptionMiddleware
                 statusCode = "01";
                 break;
             case NotFoundException:
-                statusCode = "00";
+                statusCode = "02";
                 break;
             case UnauthorizedException:
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 statusCode = "04";
+                break;
+            case DbException:
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                statusCode = "05";
                 break;
             default:
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
