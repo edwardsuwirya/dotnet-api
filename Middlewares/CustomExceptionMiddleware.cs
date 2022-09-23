@@ -54,11 +54,7 @@ public class CustomExceptionMiddleware
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
-        await context.Response.WriteAsJsonAsync(new CommonResponse<string?>
-        {
-            StatusCode = statusCode,
-            Message = $"{exception.Message}",
-            Data = null
-        }, jsonOpt);
+        await context.Response.WriteAsJsonAsync(new CommonResponse<string>(statusCode, $"{exception.Message}")
+            , jsonOpt);
     }
 }

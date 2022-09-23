@@ -31,6 +31,7 @@ public class Startup
         services.AddTransient<ICategoryRepository, CategoryRepository>();
         services.AddTransient<IProductService, ProductService>();
         services.AddTransient<ICategoryService, CategoryService>();
+        services.AddAutoMapper(typeof(Startup));
     }
 
 

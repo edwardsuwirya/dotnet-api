@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySimpleNetApi.Exceptions;
@@ -15,8 +16,14 @@ namespace MySimpleNetApi.Controllers;
 public class ProductsController : BaseController
 {
     private readonly IProductService _productService;
+    private readonly IMapper _mapper;
 
-    public ProductsController(IProductService productService) => _productService = productService;
+    public ProductsController(IProductService productService, IMapper mapper
+    )
+    {
+        _productService = productService;
+        _mapper = mapper;
+    }
 
     /* 3 pendekatan cara melakukan return dari API
      - Tipe data nya langsung => langsung status code 200
@@ -27,22 +34,8 @@ public class ProductsController : BaseController
     public async Task<CommonResponse<List<ProductResponse>>> GetAllProduct()
     {
         var result = await _productService.List();
-        var response = result.Select(p => new ProductResponse
-        {
-            Id = p.Id,
-            ProductName = p.ProductName,
-            Category = new CategoryResponse
-            {
-                Id = p.Category.Id,
-                CategoryName = p.Category.CategoryName
-            }
-        }).ToList();
-        return new CommonResponse<List<ProductResponse>>
-        {
-            StatusCode = "00",
-            Message = "Success",
-            Data = response
-        };
+        var response = _mapper.Map<List<Product>, List<ProductResponse>>(result);
+        return new CommonResponse<List<ProductResponse>>(response);
     }
 
     [HttpGet("not-found")]
@@ -62,60 +55,26 @@ public class ProductsController : BaseController
             // Akan memberikan status 400
             throw new BadRequestException("ID is needed");
         }
-        else
-        {
-            var result = await _productService.UpdateProduct(id, new Product
-            {
-                ProductName = product.ProductName,
-                CategoryId = product.CategoryId
-            });
-            return new CommonResponse<ProductResponse>
-            {
-                StatusCode = "00",
-                Message = "Success",
-                Data = new ProductResponse
-                {
-                    Id = result.Id,
-                    ProductName = result.ProductName,
-                    Category = new CategoryResponse
-                    {
-                        Id = result.Category.Id,
-                        CategoryName = result.Category.CategoryName
-                    }
-                }
-            };
-        }
+
+        var request = _mapper.Map<RegisterProductRequest, Product>(product);
+        var result = await _productService.UpdateProduct(id, request);
+        var response = _mapper.Map<Product, ProductResponse>(result);
+        return new CommonResponse<ProductResponse>(response);
     }
 
     [HttpPost]
     public async Task<CommonResponse<ProductResponse>> PostProduct([FromBody] RegisterProductRequest product)
     {
-        var result = await _productService.RegisterProduct(new Product
-        {
-            ProductName = product.ProductName,
-            CategoryId = product.CategoryId
-        });
-        return new CommonResponse<ProductResponse>
-        {
-            StatusCode = "00",
-            Message = "Success",
-            Data = new ProductResponse
-            {
-                Id = result.Id,
-                ProductName = result.ProductName,
-            }
-        };
+        var request = _mapper.Map<RegisterProductRequest, Product>(product);
+        var result = await _productService.RegisterProduct(request);
+        var response = _mapper.Map<Product, ProductResponse>(result);
+        return new CommonResponse<ProductResponse>(response);
     }
 
     [HttpDelete]
     public async Task<CommonResponse<string>> DeleteProduct(string id)
     {
         var result = await _productService.DeleteProduct(id);
-        return new CommonResponse<string>
-        {
-            StatusCode = "00",
-            Message = "Success",
-            Data = id
-        };
+        return new CommonResponse<string>(id);
     }
 }
