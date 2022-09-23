@@ -25,50 +25,29 @@ public class ProductService : IProductService
 
     public async Task<Product> RegisterProduct(Product product)
     {
-        try
-        {
-            await _productRepository.Save(product);
-            await _persistence.Complete();
-            return product;
-        }
-        catch (Exception e)
-        {
-            throw new DbException("Failed to register product");
-        }
+        await _productRepository.Save(product);
+        await _persistence.Complete();
+        return product;
     }
 
     public async Task<Product> UpdateProduct(string id, Product product)
     {
-        try
-        {
-            var existingProduct = await _productRepository.FindById(id);
-            if (existingProduct == null)
-                throw new NotFoundException("Product not found.");
-            existingProduct.ProductName = product.ProductName;
-            _productRepository.Update(existingProduct);
-            await _persistence.Complete();
-            return existingProduct;
-        }
-        catch (Exception e)
-        {
-            throw new DbException("Failed to update product");
-        }
+        var existingProduct = await _productRepository.FindById(id);
+        if (existingProduct == null)
+            throw new NotFoundException("Product not found.");
+        existingProduct.ProductName = product.ProductName;
+        _productRepository.Update(existingProduct);
+        await _persistence.Complete();
+        return existingProduct;
     }
 
     public async Task<Product> DeleteProduct(string id)
     {
-        try
-        {
-            var existingProduct = await _productRepository.FindById(id);
-            if (existingProduct == null)
-                throw new NotFoundException("Product not found.");
-            _productRepository.Delete(existingProduct);
-            await _persistence.Complete();
-            return existingProduct;
-        }
-        catch (Exception e)
-        {
-            throw new DbException("Failed to delete product");
-        }
+        var existingProduct = await _productRepository.FindById(id);
+        if (existingProduct == null)
+            throw new NotFoundException("Product not found.");
+        _productRepository.Delete(existingProduct);
+        await _persistence.Complete();
+        return existingProduct;
     }
 }

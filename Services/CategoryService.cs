@@ -22,15 +22,8 @@ public class CategoryService : ICategoryService
 
     public async Task<Category> RegisterCategory(Category category)
     {
-        try
-        {
-            await _categoryRepository.Save(category);
-            await _persistence.Complete();
-            return category;
-        }
-        catch (Exception e)
-        {
-            throw new DbException("Failed to register product");
-        }
+        await _categoryRepository.Save(category);
+        await _persistence.Complete();
+        return category;
     }
 }

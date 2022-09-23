@@ -1,3 +1,5 @@
+using MySimpleNetApi.Exceptions;
+
 namespace MySimpleNetApi.Repository;
 
 public class DbPersistence : IPersistence
@@ -8,6 +10,13 @@ public class DbPersistence : IPersistence
 
     public async Task Complete()
     {
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            throw new DbException("Failed to update database");
+        }
     }
 }
