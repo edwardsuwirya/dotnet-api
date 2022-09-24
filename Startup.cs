@@ -2,7 +2,9 @@ using MySimpleNetApi.Authentication;
 using MySimpleNetApi.Services;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using MySimpleNetApi.Filter;
 using MySimpleNetApi.Middlewares;
+using MySimpleNetApi.Models;
 using MySimpleNetApi.Repository;
 
 namespace MySimpleNetApi;
@@ -17,6 +19,13 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddAuthentication("Custom").AddScheme<CustomAuthOptions, CustomAuthHandler>("Custom", null);
+
+        //Global Filter
+        // services.AddControllers(options => options.Filters.Add(typeof(ModelValidationFilter))).AddJsonOptions(options =>
+        //     {
+        //         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        //     }
+        // );
         services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -26,6 +35,7 @@ public class Startup
         {
             options.UseInMemoryDatabase(_configuration.GetConnectionString("memory"));
         });
+        services.AddScoped<EntityExistsValidationFilter>();
         services.AddTransient<IPersistence, DbPersistence>();
         services.AddTransient<IProductRepository, ProductRepository>();
         services.AddTransient<ICategoryRepository, CategoryRepository>();

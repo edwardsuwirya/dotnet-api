@@ -10,5 +10,6 @@ public class RequestToModelProfile : Profile
     {
         CreateMap<RegisterCategoryRequest, Category>();
         CreateMap<RegisterProductRequest, Product>();
+        CreateMap<UpdateProductRequest, Product>();
     }
 }

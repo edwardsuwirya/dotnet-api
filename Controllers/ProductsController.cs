@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySimpleNetApi.Exceptions;
+using MySimpleNetApi.Filter;
 using MySimpleNetApi.Models;
 using MySimpleNetApi.Resource;
 using MySimpleNetApi.Services;
@@ -28,7 +29,7 @@ public class ProductsController : BaseController
     /* 3 pendekatan cara melakukan return dari API
      - Tipe data nya langsung => langsung status code 200
      - IActionResult => Bisa memberikan HTTP status code yang lain yang dibungkus dengan method, contoh: Ok(products), NotFound() 404
-     - ActionResult<T> => Syantactical Sugar supaya return type dari API lebih clear
+     - ActionResult<T> => Syntactical Sugar supaya return type dari API lebih clear
     */
     [HttpGet]
     public async Task<CommonResponse<List<ProductResponse>>> GetAllProduct()
@@ -45,24 +46,24 @@ public class ProductsController : BaseController
         return NotFound();
     }
 
+
     [HttpPut("{id}")]
-    public async Task<CommonResponse<ProductResponse>> PutProduct(string id, [FromBody] RegisterProductRequest product)
+    [ServiceFilter(typeof(EntityExistsValidationFilter))]
+    [TypeFilter(typeof(ModelValidationFilter))]
+    public async Task<CommonResponse<ProductResponse>> PutProduct([FromRoute] string id,
+        [FromBody] UpdateProductRequest product)
     {
         // Console.WriteLine(id);
         // Console.WriteLine(product.Id);
-        if (string.IsNullOrEmpty(id))
-        {
-            // Akan memberikan status 400
-            throw new BadRequestException("ID is needed");
-        }
-
-        var request = _mapper.Map<RegisterProductRequest, Product>(product);
-        var result = await _productService.UpdateProduct(id, request);
+        var existingProduct = HttpContext.Items["entity"] as Product;
+        var request = _mapper.Map(product, existingProduct);
+        var result = await _productService.UpdateProduct(request);
         var response = _mapper.Map<Product, ProductResponse>(result);
         return new CommonResponse<ProductResponse>(response);
     }
 
     [HttpPost]
+    [TypeFilter(typeof(ModelValidationFilter))]
     public async Task<CommonResponse<ProductResponse>> PostProduct([FromBody] RegisterProductRequest product)
     {
         var request = _mapper.Map<RegisterProductRequest, Product>(product);
@@ -71,10 +72,12 @@ public class ProductsController : BaseController
         return new CommonResponse<ProductResponse>(response);
     }
 
-    [HttpDelete]
-    public async Task<CommonResponse<string>> DeleteProduct(string id)
+    [HttpDelete("{id}")]
+    [ServiceFilter(typeof(EntityExistsValidationFilter))]
+    public async Task<CommonResponse<string>> DeleteProduct([FromRoute] string id)
     {
-        var result = await _productService.DeleteProduct(id);
+        var existingProduct = HttpContext.Items["entity"] as Product;
+        var result = await _productService.DeleteProduct(existingProduct);
         return new CommonResponse<string>(id);
     }
 }

@@ -30,24 +30,17 @@ public class ProductService : IProductService
         return product;
     }
 
-    public async Task<Product> UpdateProduct(string id, Product product)
+    public async Task<Product> UpdateProduct(Product newProduct)
     {
-        var existingProduct = await _productRepository.FindById(id);
-        if (existingProduct == null)
-            throw new NotFoundException("Product not found.");
-        existingProduct.ProductName = product.ProductName;
-        _productRepository.Update(existingProduct);
+        _productRepository.Update(newProduct);
         await _persistence.Complete();
-        return existingProduct;
+        return newProduct;
     }
 
-    public async Task<Product> DeleteProduct(string id)
+    public async Task<Product> DeleteProduct(Product deleteProduct)
     {
-        var existingProduct = await _productRepository.FindById(id);
-        if (existingProduct == null)
-            throw new NotFoundException("Product not found.");
-        _productRepository.Delete(existingProduct);
+        _productRepository.Delete(deleteProduct);
         await _persistence.Complete();
-        return existingProduct;
+        return deleteProduct;
     }
 }

@@ -1,6 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using MySimpleNetApi.Exceptions;
+using MySimpleNetApi.Filter;
 using MySimpleNetApi.Models;
 using MySimpleNetApi.Resource;
 using MySimpleNetApi.Services;
@@ -29,6 +29,7 @@ public class CategoriesController : BaseController
         return new CommonResponse<List<CategoryResponse>>(response);
     }
 
+    [TypeFilter(typeof(ModelValidationFilter))]
     [HttpPost]
     public async Task<CommonResponse<CategoryResponse>> PostCategory([FromBody] RegisterCategoryRequest category)
     {
